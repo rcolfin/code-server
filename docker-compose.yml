@@ -1,0 +1,22 @@
+---
+services:
+  code-server-python:
+    image: rcolfin/metelsoft:code-server-python
+    container_name: code-server-python
+
+    build:
+      dockerfile: Dockerfile.python
+      tags:
+        - rcolfin/metelsoft:code-server-python
+        - rcolfin/metelsoft:code-server-python${TAG:+-${TAG}}
+      args:
+        BUILD_DATE: "${BUILD_DATE:-}"
+        GIT_COMMIT: "${GIT_COMMIT:-unknown}"
+
+    ports:
+      - 8443:8443 # code-server
+
+    environment:
+      PUID: ${PUID:-1003}
+      PGID: ${PGID:-1000}
+      TZ: ${TZ:-America/New_York}
