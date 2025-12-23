@@ -1,0 +1,5 @@
+{
+    "files.trimTrailingWhitespace": true,
+    "workbench.editor.enablePreview": false,
+    "editor.formatOnSave": true
+}
