@@ -6,9 +6,11 @@ services:
 
     build:
       dockerfile: Dockerfile.python
+      labels:
+        org.opencontainers.image.base.name: "lscr.io/linuxserver/code-server:${TAG:-latest}"
       tags:
         - rcolfin/metelsoft:code-server-python
-        - rcolfin/metelsoft:code-server-python${TAG:+-${TAG}}
+        #- rcolfin/metelsoft:code-server-python${TAG:+-${TAG}}
       args:
         BUILD_DATE: "${BUILD_DATE:-}"
         GIT_COMMIT: "${GIT_COMMIT:-unknown}"

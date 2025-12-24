@@ -15,6 +15,6 @@ TAG=$(docker inspect "$IMAGE" | jq -r '.[0].Config.Labels | to_entries | last | 
 
 log "TAG=${TAG}"
 
-echo "$TAG"
+echo "${TAG}"
 
 [ -n "${GITHUB_ENV+x}" ] && echo "TAG=${TAG}" >> "${GITHUB_ENV}"

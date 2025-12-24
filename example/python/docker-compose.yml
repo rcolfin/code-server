@@ -1,0 +1,77 @@
+---
+services:
+  code-server:
+    image: rcolfin/metelsoft:code-server-python
+    container_name: code-server
+    restart: unless-stopped
+    hostname: code-server
+    networks:
+      - code-server
+
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+    environment:
+      PUID: ${PUID:-1003}
+      PGID: ${PGID:-1000}
+      TZ: ${TZ:-America/New_York}
+      DEFAULT_WORKSPACE: /config/workspace
+      #PASSWORD: "${PASSWORD}" #optional
+      #HASHED_PASSWORD: "${HASHED_PASSWORD}" #https://github.com/coder/code-server/blob/main/docs/FAQ.md#can-i-store-my-password-hashed
+      SUDO_PASSWORD: '${SUDO_PASSWORD}'
+      #SUDO_PASSWORD_HASH: "${SUDO_PASSWORD_HASH}" #https://github.com/coder/code-server/blob/main/docs/FAQ.md#can-i-store-my-password-hashed
+      #PROXY_DOMAIN: "${PROXY_DOMAIN}""
+      #PWA_APPNAME: "${PWA_APPNAME}"
+
+    volumes:
+      - $DATADIR/config:/config
+      - $DATADIR/config/.ssh:/root/.ssh:ro
+      - $DATADIR/.gitconfig:/root/.gitconfig:ro
+
+  nginx-code-server:
+    container_name: nginx-code-server
+    hostname: nginx
+    image: nginx:latest
+    pull_policy: always
+    restart: unless-stopped
+    networks:
+      - code-server
+
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+    ports:
+      - 8443:8443 # code-server
+
+    environment:
+      PUID: ${PUID:-1003}
+      PGID: ${PGID:-1000}
+      TZ: ${TZ:-America/New_York}
+      DOMAIN: ${DOMAIN}
+
+    volumes:
+      - ./config/nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./config/nginx/htpasswd:/etc/apache2/.htpasswd:ro
+      - ${CERTSDIR}:/etc/letsencrypt:ro
+
+    depends_on:
+      code-server:
+        condition: service_started
+
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower
+    pull_policy: always
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      # https://containrrr.dev/watchtower/arguments/
+      TZ: ${TZ}
+      WATCHTOWER_CLEANUP: =true
+      WATCHTOWER_LABEL_ENABLE: =true
+
+networks:
+  code-server:
+    external: false
+    name: code-server
